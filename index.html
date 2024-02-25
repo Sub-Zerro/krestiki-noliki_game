@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адское поле</title>
+</head>
+<body>
+    <h1></h1>
+
+    <div>
+        <button class="0"></button>
+        <button class="1"></button>
+        <button class="2"></button>
+    </div>
+    <div>
+        <button class="3"></button>
+        <button class="4"></button>
+        <button class="5"></button>
+    </div>
+    <div>
+        <button class="6"></button>
+        <button class="7"></button>
+        <button class="8"></button>
+    </div>
+
+    <button class="out">Выйти</button>
+
+    <script>
+        let role;
+
+        let btns = document.querySelectorAll('button');
+
+        document.querySelectorAll('button').forEach(e=>{
+            e.onclick = (()=>{
+                fetch('/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    body: JSON.stringify({id: e.className, role: role})
+                }).then((res)=>{
+                    res.json().then((data)=>{
+                        //console.log(data);
+                    })
+                })
+            })
+        })
+
+        let out = document.querySelector('.out');
+        out.onclick = (()=>{
+            fetch('/out');
+        })
+
+        setInterval(async() => {
+            let game = await new Promise(async(resolve, reject)=>{
+                await fetch('/online', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                }).then((res)=>{
+                    res.json().then(async(data)=>{
+                        //console.log(data.game);
+                        role = data.session;
+                        
+                        let temp = await end_game(data.game.game);
+
+                        let h1 = document.querySelector('h1');
+                        h1.textContent = `${data.game.winners[0]} : ${data.game.winners[1]}`;
+
+                        if(temp[0]==true){
+                            console.log('end');
+                            new_game(temp[1]);
+                        }
+                        
+                        //console.log(temp);
+
+                        resolve(data.game.game);
+                    })
+                })
+            })
+
+            
+
+            
+
+            for (let i = 0; i < game.length; i++){
+                if (game[i] == "-1"){
+                    console.log(1);
+                    btns[i].textContent = " ";
+                }else if (game[i] == "0"){
+                    btns[i].textContent = "X";
+                }else{
+                    btns[i].textContent = "O";
+                }
+            }
+            
+        }, 2000);
+
+
+
+        function new_game(win){
+            fetch('/new_game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify({win: win})
+            })
+        }
+
+        async function end_game(arr){
+            let database = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[6,4,2],[0,4,8]];
+            let is_end = false;
+
+            let winner;
+
+            console.log('arr222', arr);
+
+            for (let i = 0; i < database.length; i++){
+                let temp = [arr[database[i][0]], arr[database[i][1]], arr[database[i][2]]];
+
+                if ((temp[0] == temp[1]) && (temp[1] == temp[2]) && (temp[0] == temp[2])){
+                    if (temp[0]!=(-1)){
+                        is_end = true;
+                        winner = temp[0];
+                        break;
+                    }
+                }
+            }
+
+            return [is_end, winner];
+        }
+
+    </script>
+</body>
+</html>
