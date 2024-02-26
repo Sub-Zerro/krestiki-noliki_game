@@ -25,6 +25,7 @@
         <button class="8"></button>
     </div>
 
+    <!-- <button class="change">Поменяться</button> -->
     <button class="out">Выйти</button>
 
     <script>
@@ -50,8 +51,15 @@
 
         let out = document.querySelector('.out');
         out.onclick = (()=>{
-            fetch('/out');
+            fetch('/out').then(()=>{
+                location.replace('/');
+            });
         })
+
+        // let change = document.querySelector('.change');
+        // change.onclick = (()=>{
+        //     change_game();
+        // })
 
         setInterval(async() => {
             let game = await new Promise(async(resolve, reject)=>{
@@ -70,10 +78,29 @@
                         let h1 = document.querySelector('h1');
                         h1.textContent = `${data.game.winners[0]} : ${data.game.winners[1]}`;
 
-                        if(temp[0]==true){
-                            console.log('end');
-                            new_game(temp[1]);
+                        console.log(temp);
+                        // if (temp.length == 3){
+                        //     console.log('DRAW');
+                        //     // setTimeout(() => {
+                        //     //     change_game();
+                        //     //     new_game(null);
+                        //     // }, 4000);
+                        //     roma();
+                            
+                        // }else{
+                        //     if(temp[0]==true){
+                        //         console.log('end');
+                        //         //new_game(temp[1]);
+                        //         roma();
+                        //     }
+                        // }
+
+                        if ((temp.length == 3) || (temp[0] == true)){
+                            setTimeout(() => {
+                                roma();
+                            }, 2000);
                         }
+                        
                         
                         //console.log(temp);
 
@@ -97,7 +124,7 @@
                 }
             }
             
-        }, 2000);
+        }, 500);
 
 
 
@@ -112,26 +139,71 @@
         }
 
         async function end_game(arr){
-            let database = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[6,4,2],[0,4,8]];
-            let is_end = false;
+            return new Promise((resolve, reject)=>{
+                let database = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[6,4,2],[0,4,8]];
+                let is_end = false;
 
-            let winner;
+                let winner;
 
-            console.log('arr222', arr);
+                console.log('arr222', arr);
 
-            for (let i = 0; i < database.length; i++){
-                let temp = [arr[database[i][0]], arr[database[i][1]], arr[database[i][2]]];
 
-                if ((temp[0] == temp[1]) && (temp[1] == temp[2]) && (temp[0] == temp[2])){
-                    if (temp[0]!=(-1)){
-                        is_end = true;
-                        winner = temp[0];
-                        break;
+                let drow = true;
+                for (let i = 0; i < arr.length; i++){
+                    if (arr[i] == (-1)){
+                        drow = false;
                     }
                 }
-            }
+                
+                if (drow==false){
+                    for (let i = 0; i < database.length; i++){
+                        let temp = [arr[database[i][0]], arr[database[i][1]], arr[database[i][2]]];
 
-            return [is_end, winner];
+                        if ((temp[0] == temp[1]) && (temp[1] == temp[2]) && (temp[0] == temp[2])){
+                            if (temp[0]!=(-1)){
+                                is_end = true;
+                                winner = temp[0];
+                                break;
+                            }
+                        }
+                    }
+
+                    resolve([is_end, winner]);
+                }else{
+                    resolve([is_end, winner, drow]);
+                    //return [is_end, winner, drow];
+                }
+            })
+
+            
+        }
+
+
+        async function change_game(){
+                await fetch('/change', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    }
+                }).then((res)=>{
+                    res.json().then((data)=>{
+                        if (data.role == 0){
+                            alert("Теперь вы играете на крестики");
+                        }else{
+                            alert("Теперь вы играете за нолики");
+                        }
+                })
+                });
+            } 
+            
+        async function roma(){
+            await fetch('/out').then(()=>{
+                location.replace('/');
+            });
+
+            await fetch('/reset').then(()=>{
+                location.replace('/');
+            });
         }
 
     </script>

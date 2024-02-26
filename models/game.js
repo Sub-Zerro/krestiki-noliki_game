@@ -39,6 +39,7 @@ class Game{
       let data  = await Game.get_game();
 
       data["game"] = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+      data["motion"] = 0;
 
       console.log(typeof(Number(win)), Number(win));
 
@@ -62,6 +63,23 @@ class Game{
             console.log(err);
           else {
             console.log("Новая игра");
+          }
+        });
+    }
+
+    async draw(){
+      let temp_game = await this.to_json();
+      console.log('TEMP', temp_game);
+
+      temp_game["game"] = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+      temp_game["motion"] = 0;
+
+
+      fs.writeFile(p, JSON.stringify(temp_game), (err) => {
+          if (err)
+            console.log(err);
+          else {
+            console.log("Была ничья");
           }
         });
     }

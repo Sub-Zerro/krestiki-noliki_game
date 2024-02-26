@@ -28,13 +28,14 @@ app.get('/', function(req, res) {
     if (req.session.user){
         res.sendFile(__dirname + "/index.html");
     }else{
-        res.redirect('/login');
+        //res.redirect('/login');
+        res.sendFile(__dirname + "/login.html");
     }
 });
 
-app.get('/login', function(req, res) {
-    res.sendFile(__dirname + "/login.html");
-})
+// app.get('/login', function(req, res) {
+//     res.sendFile(__dirname + "/login.html");
+// })
 
 app.get('/reset', async function(req, res) {
     let game = await new Game();
@@ -42,12 +43,29 @@ app.get('/reset', async function(req, res) {
 })
 
 app.get('/out', async function(req, res) {
-    req.session.destroy();
+    await req.session.destroy();
     console.log('done');
-    res.redirect('/');
+    res.send({});
 })
 
-app.post('/login', (req, res)=>{
+app.post('/change', async function(req, res) {
+    let temp_session = req.session.user;
+
+    if (temp_session == '0'){
+        temp_session = '1';
+    }else{
+        temp_session = '0';
+    }
+
+    req.session.user = temp_session;
+
+    console.log('change');
+    res.send({role: temp_session});
+})
+
+
+
+app.post('/login', async(req, res)=>{
 
     console.log(req.body.login);
 
@@ -69,10 +87,14 @@ app.post('/login', (req, res)=>{
         if (e.login == req.body.login){
             console.log('сука');
             req.session.user = e.id;
+
+            console.log("session:", req.session.user);
+
+           res.send({});
         }
     });
 
-    res.redirect('/');
+    
 })
 
 
@@ -88,7 +110,10 @@ app.post('/update', async(req, res)=>{
 
 
         if (req.body.role == game_situation["motion"]){
-            game_situation["game"][req.body.id] = req.body.role;
+            if (game_situation["game"][req.body.id] == (-1)){
+                game_situation["game"][req.body.id] = req.body.role;
+            }
+            
             game_situation["motion"] = Math.abs(+(Math.abs(game_situation["motion"])-1))
         }
         
@@ -111,11 +136,17 @@ app.post('/online', async(req, res)=>{
 })
 
 app.post('/new_game', async(req, res)=>{
-    req.session = null; 
-    
+    //req.session = null; 
     let game = await new Game();
-    console.log('roma', req.body.win);
-    await game.new_game(req.body.win);
+    //console.log('roma', req.body.win);
+    if (req.body.win == null){
+        await game.draw();
+    }else{
+        await game.new_game(req.body.win);
+    }
+    
+    
+    
 
     res.redirect('/');
 })
