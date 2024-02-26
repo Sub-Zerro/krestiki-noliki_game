@@ -78,27 +78,21 @@
                         let h1 = document.querySelector('h1');
                         h1.textContent = `${data.game.winners[0]} : ${data.game.winners[1]}`;
 
-                        console.log(temp);
-                        // if (temp.length == 3){
-                        //     console.log('DRAW');
-                        //     // setTimeout(() => {
-                        //     //     change_game();
-                        //     //     new_game(null);
-                        //     // }, 4000);
-                        //     roma();
-                            
-                        // }else{
-                        //     if(temp[0]==true){
-                        //         console.log('end');
-                        //         //new_game(temp[1]);
-                        //         roma();
-                        //     }
-                        // }
+                        //console.log(temp);
 
                         if ((temp.length == 3) || (temp[0] == true)){
-                            setTimeout(() => {
+                            //setTimeout(() => {
+                                if (temp.length == 3){
+                                    alert('Ничья');
+                                }else{
+                                    if (temp[1] == '0'){
+                                        alert('Победили крестики');
+                                    }else{
+                                        alert('Победили нолики');
+                                    }
+                                }
                                 roma();
-                            }, 2000);
+                            //}, 2000);
                         }
                         
                         
@@ -115,7 +109,7 @@
 
             for (let i = 0; i < game.length; i++){
                 if (game[i] == "-1"){
-                    console.log(1);
+                    //console.log(1);
                     btns[i].textContent = " ";
                 }else if (game[i] == "0"){
                     btns[i].textContent = "X";
@@ -124,7 +118,7 @@
                 }
             }
             
-        }, 500);
+        }, 10);
 
 
 
@@ -145,7 +139,7 @@
 
                 let winner;
 
-                console.log('arr222', arr);
+                //console.log('arr222', arr);
 
 
                 let drow = true;

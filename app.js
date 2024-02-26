@@ -112,14 +112,16 @@ app.post('/update', async(req, res)=>{
         if (req.body.role == game_situation["motion"]){
             if (game_situation["game"][req.body.id] == (-1)){
                 game_situation["game"][req.body.id] = req.body.role;
+                game_situation["motion"] = Math.abs(+(Math.abs(game_situation["motion"])-1))
+                await game.write_game(game_situation);
             }
             
-            game_situation["motion"] = Math.abs(+(Math.abs(game_situation["motion"])-1))
+            
         }
         
         //записываю ход игрока
 
-        await game.write_game(game_situation);
+        
         res.send({is_ok: true});
 
     } catch (error) {
